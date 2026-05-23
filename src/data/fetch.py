@@ -7,7 +7,7 @@ Run directly: python -m src.data.fetch
 
 import yfinance as yf
 import pandas as pd
-import pandas_datareader.data as web
+from fredapi import Fred
 from datetime import datetime
 import os
 
@@ -55,8 +55,9 @@ def download_fred(series_dict: dict[str, str], start: str, end: str) -> pd.DataF
     for label, series_id in series_dict.items():
         print(f"  FRED: {label} ({series_id})")
         try:
-            s = web.DataReader(series_id, "fred", start, end)
-            frames[label] = s[series_id]
+            fred = Fred(api_key="ec4ab05782585037a7fdb821a1e64215")
+            s = fred.get_series(series_id, observation_start=start, observation_end=end)
+            frames[label] = s
         except Exception as e:
             print(f"  WARNING: could not fetch {series_id}: {e}")
     return pd.DataFrame(frames)
